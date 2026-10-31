@@ -1,0 +1,22 @@
+{
+  "name": "@mstssk/md2pdf",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "author": "@mstssk",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "LICENSE"
+  ],
+  "dependencies": {
+    "marked": "^18.1.2",
+    "puppeteer": "^25.16.0"
+  },
+  "allowScripts": {
+    "puppeteer@25.16.0": true
+  }
+}
