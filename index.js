@@ -7,7 +7,6 @@ const html = getHtml(md);
 const pdfContent = await generatePdfViaPuppeteer(html);
 
 await fs.writeFile("page.pdf", pdfContent);
-console.log("PDF saved");
 
 //----------
 
@@ -21,14 +20,11 @@ async function generatePdfViaPuppeteer(html) {
     headless: true,
     args: [chromeNoSandbox].filter(Boolean),
   });
-  console.log("Browser launched");
 
   const page = await browser.newPage();
-  console.log("New page opened");
 
   // Navigate the page to a URL.
   // await page.goto("https://example.com/");
-  // console.log("Navigated to the URL");
 
   await page.setContent(html);
 
@@ -37,10 +33,8 @@ async function generatePdfViaPuppeteer(html) {
     margin: convertCSSMarginStringToTRBL("15mm"),
     printBackground: true,
   });
-  console.log("PDF generated");
 
   await browser.close();
-  console.log("Browser closed");
 
   return pdfContent;
 }
