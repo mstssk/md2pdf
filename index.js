@@ -3,14 +3,14 @@ import puppeteer from "puppeteer";
 import { marked } from "marked";
 
 const md = await fs.readFile("fixtures/example.md", "utf-8");
-const html = getHtml(md);
-const pdfContent = await generatePdfViaPuppeteer(html);
+const { html, title } = getHtml(md);
+const pdfContent = await generatePdfViaPuppeteer(html, title);
 
 await fs.writeFile("page.pdf", pdfContent);
 
 //----------
 
-async function generatePdfViaPuppeteer(html) {
+async function generatePdfViaPuppeteer(html, title = "") {
   // GitHub Actions上だと--no-sandboxが必要。ローカルではセキュリティ面を考慮して無効化しない。
   const chromeNoSandbox = process.env.CI ? "--no-sandbox" : null;
 
@@ -23,10 +23,18 @@ async function generatePdfViaPuppeteer(html) {
 
   const page = await browser.newPage();
 
-  // Navigate the page to a URL.
-  // await page.goto("https://example.com/");
-
   await page.setContent(html);
+  await page.evaluate((t) => (document.title = t), title);
+  await page.addStyleTag({
+    content: `
+    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");
+
+    body {
+      font-family: "Noto Sans JP", sans-serif;
+      font-size: 4mm;
+      }
+      `,
+  });
 
   const pdfContent = await page.pdf({
     format: "A4",
@@ -47,25 +55,7 @@ function getHtml(md) {
     ? parser.parseInline(firstHeading.tokens, parser.textRenderer)
     : "";
   const html = marked.parser(tokens);
-
-  const outputHtml = `<!DOCTYPE html>
-<html>
-	<head><title>${title}</title><meta charset="utf-8">
-  <style>
-  @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");
-
-body {
-  font-family: "Noto Sans JP", sans-serif;
-  font-size: 4mm;
-}
-  </style>
-  </head>
-	<body>
-		${html}
-	</body>
-</html>
-`;
-  return outputHtml;
+  return { html, title };
 }
 
 /**
