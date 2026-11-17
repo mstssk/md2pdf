@@ -25,16 +25,7 @@ async function generatePdfViaPuppeteer(html, title = "") {
 
   await page.setContent(html);
   await page.evaluate((t) => (document.title = t), title);
-  await page.addStyleTag({
-    content: `
-    @import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&display=swap");
-
-    body {
-      font-family: "Noto Sans JP", sans-serif;
-      font-size: 4mm;
-      }
-      `,
-  });
+  await page.addStyleTag({ path: "fixtures/example.css" });
 
   const pdfContent = await page.pdf({
     format: "A4",
