@@ -5,8 +5,11 @@
   "license": "MIT",
   "author": "@mstssk",
   "type": "module",
-  "main": "dist/cli.js",
+  "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "bin": {
+    "md2pdf": "dist/cli.js"
+  },
   "files": [
     "LICENSE",
     "dist"
@@ -16,7 +19,7 @@
     "clear": "rm -rf dist; yes | puppeteer browsers clear",
     "fmt": "prettier --write src fixtures",
     "lint": "prettier --check src fixtures",
-    "test": "node dist/cli.js"
+    "test": "bin/md2pdf.js --config-file fixtures/example-config.js fixtures/example.md"
   },
   "allowScripts": {
     "puppeteer@25.16.0": true

@@ -1,17 +1,20 @@
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+import { parseArgs } from "node:util";
 import { md2pdf } from "./index.js";
 
-await md2pdf("fixtures/example.md", {
-  dest: "output.pdf",
-  launch_options: {
-    channel: "chrome",
-    headless: true,
-    // GitHub Actions上だと--no-sandboxが必要。ローカルではセキュリティ面を考慮して無効化しない。
-    args: process.env.CI ? ["--no-sandbox"] : [],
-  },
-  pdf_options: {
-    format: "A4",
-    margin: { top: "15mm", right: "15mm", bottom: "15mm", left: "15mm" },
-    printBackground: true,
-  },
-  stylesheet: ["fixtures/example.css"],
-}); // TODO
+const { values, positionals } = parseArgs({
+  options: { "config-file": { type: "string" } },
+  allowPositionals: true,
+});
+
+const configFile = values["config-file"];
+const [mdPath] = positionals;
+if (!configFile || !mdPath) {
+  throw new Error("Usage: md2pdf --config-file=<config.js> <input.md>");
+}
+
+const { default: config } = await import(
+  pathToFileURL(path.resolve(configFile)).href
+);
+await md2pdf(mdPath, config);
