@@ -6,15 +6,18 @@
   "author": "@mstssk",
   "type": "module",
   "main": "dist/cli.js",
+  "files": [
+    "LICENSE",
+    "dist"
+  ],
   "scripts": {
     "build": "tsc",
     "clear": "rm -rf dist; yes | puppeteer browsers clear",
     "test": "node dist/cli.js"
   },
-  "files": [
-    "LICENSE",
-    "dist"
-  ],
+  "allowScripts": {
+    "puppeteer@25.16.0": true
+  },
   "dependencies": {
     "marked": "^18.1.2",
     "puppeteer": "^25.16.0"
@@ -22,8 +25,5 @@
   "devDependencies": {
     "@types/node": "^26.6.6",
     "typescript": "^7.0.2"
-  },
-  "allowScripts": {
-    "puppeteer@25.16.0": true
   }
 }
