@@ -16,7 +16,7 @@
   ],
   "scripts": {
     "build": "tsc",
-    "clear": "rm -rf dist; yes | puppeteer browsers clear",
+    "clear": "rm -rf dist *.pdf; yes | puppeteer browsers clear",
     "fmt": "prettier --write src fixtures",
     "lint": "prettier --check src fixtures",
     "test": "bin/md2pdf.js --config-file fixtures/example-config.js fixtures/example.md"
