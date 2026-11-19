@@ -1,16 +1,20 @@
 import fs from "node:fs/promises";
 import puppeteer, { type PDFMargin } from "puppeteer";
+import type { LaunchOptions, PDFOptions } from "puppeteer-core";
 import { marked, type Tokens } from "marked";
 
-export async function md2pdf(
-  mdPath: string,
-  cssPath: string[],
-  outputPath: string,
-) {
+export interface Md2PdfConfig {
+  dest: string;
+  launch_options: LaunchOptions;
+  pdf_options: PDFOptions;
+  stylesheet: string[];
+}
+
+export async function md2pdf(mdPath: string, config: Md2PdfConfig) {
   const md = await fs.readFile(mdPath, "utf-8");
   const { html, title } = getHtml(md);
-  const pdfContent = await generatePdfViaPuppeteer(html, title, cssPath);
-  await fs.writeFile(outputPath, pdfContent);
+  const pdfContent = await generatePdfViaPuppeteer(html, title, config);
+  await fs.writeFile(config.dest, pdfContent);
   return pdfContent;
 }
 
@@ -19,17 +23,14 @@ export async function md2pdf(
 async function generatePdfViaPuppeteer(
   html: string,
   title = "",
-  styleSheets: string[] = [],
+  config: Md2PdfConfig,
 ) {
-  // GitHub Actions上だと--no-sandboxが必要。ローカルではセキュリティ面を考慮して無効化しない。
-  const chromeNoSandbox = process.env.CI ? "--no-sandbox" : null;
+  const launchOptions = config.launch_options;
+  const pdfOptions = config.pdf_options;
+  const styleSheets = config.stylesheet ?? [];
 
   // Launch the browser and open a new blank page.
-  const browser = await puppeteer.launch({
-    channel: "chrome",
-    headless: true,
-    args: [chromeNoSandbox].filter((a): a is string => a !== null),
-  });
+  const browser = await puppeteer.launch(launchOptions);
 
   const page = await browser.newPage();
 
@@ -39,11 +40,7 @@ async function generatePdfViaPuppeteer(
     await page.addStyleTag({ path: styleSheet });
   }
 
-  const pdfContent = await page.pdf({
-    format: "A4",
-    margin: convertCSSMarginStringToTRBL("15mm"),
-    printBackground: true,
-  });
+  const pdfContent = await page.pdf(pdfOptions);
 
   await browser.close();
 
@@ -61,17 +58,4 @@ function getHtml(md: string) {
     : "";
   const html = marked.parser(tokens);
   return { html, title };
-}
-
-/**
- * Convert a CSS-like margin string into an object with top, right, bottom, and left properties.
- * @param {string} marginStr - The margin string (e.g., "10px 20px 30px 40px").
- * @returns {{top: string, right: string, bottom: string, left: string}} An object representing the margins.
- */
-function convertCSSMarginStringToTRBL(marginStr: string): PDFMargin {
-  if (!marginStr || typeof marginStr !== "string") {
-    return {};
-  }
-  const [t = "", r = t, b = t, l = r] = marginStr.trim().split(/[\s,]+/);
-  return { top: t, right: r, bottom: b, left: l };
 }

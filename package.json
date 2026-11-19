@@ -6,6 +6,7 @@
   "author": "@mstssk",
   "type": "module",
   "main": "dist/cli.js",
+  "types": "dist/index.d.ts",
   "files": [
     "LICENSE",
     "dist"
