@@ -2,6 +2,10 @@
   "name": "@mstssk/md2pdf",
   "version": "0.0.1",
   "description": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mstssk/md2pdf.git"
+  },
   "license": "MIT",
   "author": "@mstssk",
   "type": "module",

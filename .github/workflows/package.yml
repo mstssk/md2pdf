@@ -1,0 +1,28 @@
+name: Package
+run-name: "Package ${{ github.event_name != 'release' && '(dry-run)' || '' }}"
+on:
+  push:
+    tags: ["v**"] # Dry-run when pushed tags.
+  release:
+    types: [published] # Publish when created releases.
+jobs:
+  release_npm:
+    name: "Publish to npmjs.com"
+    permissions:
+      id-token: write # Required for OIDC
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "lts/*"
+          registry-url: "https://registry.npmjs.org"
+          scope: "@mstssk"
+      - run: npm ci
+      - run: npm run build
+      - run: npx can-npm-publish --verbose
+      - if: github.event_name != 'release'
+        run: npm publish --dry-run
+      - if: github.event_name == 'release'
+        run: npm publish
