@@ -12,7 +12,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "md2pdf": "dist/cli.js"
+    "md2pdf": "bin/md2pdf.js"
   },
   "files": [
     "dist",
