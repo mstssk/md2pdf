@@ -7,15 +7,21 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
+    "build": "tsc",
     "clear": "yes | puppeteer browsers clear",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "files": [
-    "LICENSE"
+    "LICENSE",
+    "dist"
   ],
   "dependencies": {
     "marked": "^18.1.2",
     "puppeteer": "^25.16.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "typescript": "^7.0.2"
   },
   "allowScripts": {
     "puppeteer@25.16.0": true

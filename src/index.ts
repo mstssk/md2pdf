@@ -1,6 +1,6 @@
 import fs from "node:fs/promises";
-import puppeteer from "puppeteer";
-import { marked } from "marked";
+import puppeteer, { type PDFMargin } from "puppeteer";
+import { marked, type Tokens } from "marked";
 
 const md = await fs.readFile("fixtures/example.md", "utf-8");
 const { html, title } = getHtml(md);
@@ -10,7 +10,7 @@ await fs.writeFile("page.pdf", pdfContent);
 
 //----------
 
-async function generatePdfViaPuppeteer(html, title = "") {
+async function generatePdfViaPuppeteer(html: string, title = "") {
   // GitHub Actions上だと--no-sandboxが必要。ローカルではセキュリティ面を考慮して無効化しない。
   const chromeNoSandbox = process.env.CI ? "--no-sandbox" : null;
 
@@ -18,7 +18,7 @@ async function generatePdfViaPuppeteer(html, title = "") {
   const browser = await puppeteer.launch({
     channel: "chrome",
     headless: true,
-    args: [chromeNoSandbox].filter(Boolean),
+    args: [chromeNoSandbox].filter((a): a is string => a !== null),
   });
 
   const page = await browser.newPage();
@@ -38,10 +38,12 @@ async function generatePdfViaPuppeteer(html, title = "") {
   return pdfContent;
 }
 
-function getHtml(md) {
+function getHtml(md: string) {
   const tokens = marked.lexer(md);
   const parser = new marked.Parser();
-  const firstHeading = tokens.find((t) => t.type === "heading");
+  const firstHeading = tokens.find(
+    (t): t is Tokens.Heading => t.type === "heading",
+  );
   const title = firstHeading
     ? parser.parseInline(firstHeading.tokens, parser.textRenderer)
     : "";
@@ -54,10 +56,10 @@ function getHtml(md) {
  * @param {string} marginStr - The margin string (e.g., "10px 20px 30px 40px").
  * @returns {{top: string, right: string, bottom: string, left: string}} An object representing the margins.
  */
-function convertCSSMarginStringToTRBL(marginStr) {
+function convertCSSMarginStringToTRBL(marginStr: string): PDFMargin {
   if (!marginStr || typeof marginStr !== "string") {
-    return undefined;
+    return {};
   }
-  const [t, r = t, b = t, l = r] = marginStr.trim().split(/[\s,]+/);
+  const [t = "", r = t, b = t, l = r] = marginStr.trim().split(/[\s,]+/);
   return { top: t, right: r, bottom: b, left: l };
 }
