@@ -11,8 +11,8 @@
     "md2pdf": "dist/cli.js"
   },
   "files": [
-    "LICENSE",
-    "dist"
+    "dist",
+    "bin"
   ],
   "scripts": {
     "build": "tsc",
