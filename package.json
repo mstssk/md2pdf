@@ -5,11 +5,11 @@
   "license": "MIT",
   "author": "@mstssk",
   "type": "module",
-  "main": "index.js",
+  "main": "dist/cli.js",
   "scripts": {
     "build": "tsc",
-    "clear": "yes | puppeteer browsers clear",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "clear": "rm -rf dist; yes | puppeteer browsers clear",
+    "test": "node dist/cli.js"
   },
   "files": [
     "LICENSE",

@@ -2,15 +2,25 @@ import fs from "node:fs/promises";
 import puppeteer, { type PDFMargin } from "puppeteer";
 import { marked, type Tokens } from "marked";
 
-const md = await fs.readFile("fixtures/example.md", "utf-8");
-const { html, title } = getHtml(md);
-const pdfContent = await generatePdfViaPuppeteer(html, title);
-
-await fs.writeFile("page.pdf", pdfContent);
+export async function md2pdf(
+  mdPath: string,
+  cssPath: string[],
+  outputPath: string,
+) {
+  const md = await fs.readFile(mdPath, "utf-8");
+  const { html, title } = getHtml(md);
+  const pdfContent = await generatePdfViaPuppeteer(html, title, cssPath);
+  await fs.writeFile(outputPath, pdfContent);
+  return pdfContent;
+}
 
 //----------
 
-async function generatePdfViaPuppeteer(html: string, title = "") {
+async function generatePdfViaPuppeteer(
+  html: string,
+  title = "",
+  styleSheets: string[] = [],
+) {
   // GitHub Actions上だと--no-sandboxが必要。ローカルではセキュリティ面を考慮して無効化しない。
   const chromeNoSandbox = process.env.CI ? "--no-sandbox" : null;
 
@@ -25,7 +35,9 @@ async function generatePdfViaPuppeteer(html: string, title = "") {
 
   await page.setContent(html);
   await page.evaluate((t) => (document.title = t), title);
-  await page.addStyleTag({ path: "fixtures/example.css" });
+  for (const styleSheet of styleSheets) {
+    await page.addStyleTag({ path: styleSheet });
+  }
 
   const pdfContent = await page.pdf({
     format: "A4",
